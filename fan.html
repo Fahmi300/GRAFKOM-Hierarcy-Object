@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+    <div>
+        Fan Color
+        <button id="black">
+            Black
+        </button>
+        <button id="blue">
+            Blue
+        </button>
+        <button id="red">
+            Red
+        </button>
+        <button id="green">
+            Green
+        </button>
+        <button id="white">
+            White
+        </button>
+        </div><br/>
+
+    <div>
+        <p>Ambient Light Color</p>
+        <input type="range" id="ambientR" min="0" max="1" step="0.01" value="0.5">
+        <input type="range" id="ambientG" min="0" max="1" step="0.01" value="0.5">
+        <input type="range" id="ambientB" min="0" max="1" step="0.01" value="0.5">
+    </div>
+    
+    
+    <div>
+        <p>Diffuse Light Color</p>
+        <input type="range" id="diffuseR" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="diffuseG" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="diffuseB" min="0" max="1" step="0.01" value="1.0">
+    </div>
+    
+    
+    <div>
+        <p>Specular Light Color</p>
+        <input type="range" id="specularR" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="specularG" min="0" max="1" step="0.01" value="1.0">
+        <input type="range" id="specularB" min="0" max="1" step="0.01" value="1.0">
+    </div>
+    
+    
+    <div>
+        <p>Light Position</p>
+        <input type="range" id="lightX" min="-10" max="10" step="0.1" value="1.0">
+        <input type="range" id="lightY" min="-10" max="10" step="0.1" value="1.0">
+        <input type="range" id="lightZ" min="-10" max="10" step="0.1" value="1.0">
+    </div>
+<br>
+<div>
+body angle -180 <input id="slider1" type="range"
+ min="-180" max="180" step="10" value="0"
+  />
+ 180
+</div><br/>
+
+<div>
+lower stand angle -180 <input id="slider2" type="range"
+ min="-180" max="180" step="10" value="0"
+  />
+ 180
+</div><br/>
+
+<div>
+upper stand angle -180 <input id="slider3" type="range"
+ min="-180" max="180" step="10" value="0"
+  />
+ 180
+</div><br/>
+
+<div>
+upper stand height 2 <input id="slider4" type="range"
+ min="2" max="7" step="1" value="4"
+  />
+ 7
+</div><br/>
+
+<div>
+cylinder angle X -20 <input id="slider5" type="range"
+ min="-20" max="20" step="1" value="0"
+  />
+ 20
+</div><br/>
+
+<div>
+Fan speed
+<button id="speed1">
+    1
+</button>
+<button id="speed2">
+    2
+</button>
+<button id="speed3">
+    3
+</button>
+<button id="speed0">
+    off
+</button>
+</div><br/>
+
+<div>
+Swing
+<button id="onSwing">
+    on
+</button>
+<button id="offSwing">
+    off
+</button>
+</div><br/>
+
+<canvas id="gl-canvas" width="512"" height="512"> </canvas>
+<script id="vertex-shader" type="x-shader/x-vertex">
+#version 300 es
+
+in vec4 aPosition;
+in vec3 aNormal;
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+out vec3 vNormal;
+out vec4 vPosition;
+in vec4 aColor;
+out vec4 vColor;
+
+void main()
+{
+    vPosition = uModelViewMatrix * aPosition;
+    vNormal = normalize(mat3(uModelViewMatrix) * aNormal);
+    gl_Position = uProjectionMatrix * vPosition;
+    vColor = aColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+    #version 300 es
+    precision mediump float;
+    
+    in vec3 vNormal;
+    in vec4 vPosition;
+    in vec4 vColor;
+    
+    uniform vec4 uAmbientProduct;
+    uniform vec4 uDiffuseProduct;
+    uniform vec4 uSpecularProduct;
+    uniform vec4 uLightPosition;
+    uniform float uShininess;
+    
+    out vec4 fColor;
+    
+    void main() {
+        vec3 L = normalize(vec3(uLightPosition - vPosition));
+        vec3 E = normalize(-vPosition.xyz);
+        vec3 H = normalize(L + E);
+    
+        // Ambient term
+        vec4 ambient = uAmbientProduct * vColor;
+    
+        // Diffuse term
+        float Kd = max(dot(L, vNormal), 0.0);
+        vec4 diffuse = Kd * uDiffuseProduct * vColor;
+    
+        // Specular term
+        float Ks = pow(max(dot(vNormal, H), 0.0), uShininess);
+        vec4 specular = Ks * uSpecularProduct;
+    
+        fColor = ambient + diffuse + specular;
+        fColor.a = 1.0;
+    }
+</script>
+
+<script src="initShaders.js"></script>
+<script src="MVnew.js"></script>
+<script src="fan.js"></script>
+
+
+</body>
+</html>
