@@ -7,4 +7,3 @@ Athaya Coulava Putradhana (5025221287)
 <br>
 Object : Fan
 <br>
-Canva : 
